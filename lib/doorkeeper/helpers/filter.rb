@@ -6,7 +6,7 @@ module Doorkeeper
           doorkeeper_for = DoorkeeperForBuilder.create_doorkeeper_for(*args)
 
           before_filter doorkeeper_for.filter_options do
-            if request.headers['authorization'].nil? or request.headers['authorization'].empty?
+            if (request.headers['authorization'].nil? and request.headers['Authorization'].nil?) or (request.headers['authorization'].empty? and request.headers['Authorization'].empty?)
               # This header settings needed in both steps
               headers['Access-Control-Allow-Origin'] = '*'
               headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
