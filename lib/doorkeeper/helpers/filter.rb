@@ -6,7 +6,15 @@ module Doorkeeper
           doorkeeper_for = DoorkeeperForBuilder.create_doorkeeper_for(*args)
 
           before_filter doorkeeper_for.filter_options do
-            if !doorkeeper_token.nil? and !doorkeeper_token.empty? and !doorkeeper_for.validate_token(doorkeeper_token)
+            if doorkeeper_token.nil? or doorkeeper_token.empty?
+              # This header settings needed in both steps
+              headers['Access-Control-Allow-Origin'] = '*'
+              headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
+              headers['Access-Control-Max-Age'] = '1000'
+              headers['Access-Control-Allow-Headers'] = '*, accept, authorization'
+              
+              render :nothing => true
+            elsif !doorkeeper_for.validate_token(doorkeeper_token)
               @error = OAuth::InvalidTokenResponse.from_access_token(doorkeeper_token)
               headers.merge!(@error.headers.reject {|k, v| ['Content-Type'].include? k })
               
@@ -20,13 +28,7 @@ module Doorkeeper
                 render render_options
               end
             else
-              # This header settings needed in both steps
-              headers['Access-Control-Allow-Origin'] = '*'
-              headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
-              headers['Access-Control-Max-Age'] = '1000'
-              headers['Access-Control-Allow-Headers'] = '*, accept, authorization'
-              
-              render :nothing => true
+              # default render
             end
           end
         end
