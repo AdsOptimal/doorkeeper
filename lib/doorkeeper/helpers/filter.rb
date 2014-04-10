@@ -9,6 +9,13 @@ module Doorkeeper
             unless doorkeeper_for.validate_token(doorkeeper_token)
               @error = OAuth::InvalidTokenResponse.from_access_token(doorkeeper_token)
               headers.merge!(@error.headers.reject {|k, v| ['Content-Type'].include? k })
+              
+              # This header settings needed in both steps
+              headers['Access-Control-Allow-Origin'] = '*'
+              headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
+              headers['Access-Control-Max-Age'] = '1000'
+              headers['Access-Control-Allow-Headers'] = '*, client_key, fb_access_token, rg_access_token, uid, track, ref, reftype, hash, origin, accept'
+              
               render_options = doorkeeper_unauthorized_render_options
 
               if render_options.nil? || render_options.empty?
