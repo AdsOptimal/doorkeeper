@@ -14,7 +14,7 @@ module Doorkeeper
               headers['Access-Control-Allow-Origin'] = '*'
               headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
               headers['Access-Control-Max-Age'] = '1000'
-              headers['Access-Control-Allow-Headers'] = '*, client_key, fb_access_token, rg_access_token, uid, track, ref, reftype, hash, origin, accept'
+              headers['Access-Control-Allow-Headers'] = '*, origin, accept'
               
               render_options = doorkeeper_unauthorized_render_options
 
