@@ -6,7 +6,7 @@ module Doorkeeper
           doorkeeper_for = DoorkeeperForBuilder.create_doorkeeper_for(*args)
 
           before_filter doorkeeper_for.filter_options do
-            if doorkeeper_token.nil? or doorkeeper_token.empty? or !doorkeeper_for.validate_token(doorkeeper_token)
+            if !doorkeeper_token.nil? and !doorkeeper_token.empty? and !doorkeeper_for.validate_token(doorkeeper_token)
               @error = OAuth::InvalidTokenResponse.from_access_token(doorkeeper_token)
               headers.merge!(@error.headers.reject {|k, v| ['Content-Type'].include? k })
               
