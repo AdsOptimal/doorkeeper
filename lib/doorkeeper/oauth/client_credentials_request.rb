@@ -1,7 +1,3 @@
-require 'doorkeeper/oauth/error'
-require 'doorkeeper/oauth/error_response'
-require 'doorkeeper/oauth/scopes'
-require 'doorkeeper/oauth/token_response'
 require 'doorkeeper/oauth/client_credentials/creator'
 require 'doorkeeper/oauth/client_credentials/issuer'
 require 'doorkeeper/oauth/client_credentials/validation'
@@ -9,11 +5,14 @@ require 'doorkeeper/oauth/client_credentials/validation'
 module Doorkeeper
   module OAuth
     class ClientCredentialsRequest
-      attr_accessor :issuer, :server, :client, :original_scopes, :scopes
-      attr_reader   :response
-      alias         :error_response :response
+      include Validations
+      include OAuth::RequestConcern
 
-      delegate :error, :to => :issuer
+      attr_accessor :issuer, :server, :client, :original_scopes
+      attr_reader :response
+      alias :error_response :response
+
+      delegate :error, to: :issuer
 
       def issuer
         @issuer ||= Issuer.new(server, Validation.new(server, self))
@@ -25,22 +24,14 @@ module Doorkeeper
         @original_scopes = parameters[:scope]
       end
 
-      def authorize
-        status = issuer.create(client, scopes)
-        @response = if status
-          TokenResponse.new(issuer.token)
-        else
-          ErrorResponse.from_request(self)
-        end
+      def access_token
+        issuer.token
       end
 
-      # TODO: duplicated code in all flows
-      def scopes
-        @scopes ||= if @original_scopes.present?
-          Doorkeeper::OAuth::Scopes.from_string(@original_scopes)
-        else
-          server.default_scopes
-        end
+      private
+
+      def valid?
+        issuer.create(client, scopes)
       end
     end
   end

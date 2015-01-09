@@ -5,7 +5,7 @@ module Doorkeeper
       include Comparable
 
       def self.from_string(string)
-        string ||= ""
+        string ||= ''
         new.tap do |scope|
           scope.add(*string.split)
         end
@@ -17,7 +17,7 @@ module Doorkeeper
         end
       end
 
-      delegate :each, :to => :@scopes
+      delegate :each, :empty?, to: :@scopes
 
       def initialize
         @scopes = []
@@ -37,7 +37,7 @@ module Doorkeeper
       end
 
       def to_s
-        @scopes.join(" ")
+        @scopes.join(' ')
       end
 
       def has_scopes?(scopes)
@@ -54,6 +54,11 @@ module Doorkeeper
 
       def <=>(other)
         self.map(&:to_s).sort <=> other.map(&:to_s).sort
+      end
+
+      def &(other)
+        other_array = other.present? ? other.all : []
+        self.class.from_array(all & other_array)
       end
     end
   end

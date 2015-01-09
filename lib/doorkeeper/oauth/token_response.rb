@@ -13,7 +13,8 @@ module Doorkeeper
           'token_type'    => token.token_type,
           'expires_in'    => token.expires_in_seconds,
           'refresh_token' => token.refresh_token,
-          'scope'         => token.scopes_string
+          'scope'         => token.scopes_string,
+          'created_at'    => token.created_at.to_i,
         }.reject { |_, value| value.blank? }
       end
 
@@ -22,7 +23,9 @@ module Doorkeeper
       end
 
       def headers
-        { 'Cache-Control' => 'no-store', 'Pragma' => 'no-cache', 'Content-Type' => 'application/json; charset=utf-8' }
+        { 'Cache-Control' => 'no-store',
+          'Pragma' => 'no-cache',
+          'Content-Type' => 'application/json; charset=utf-8' }
       end
     end
   end

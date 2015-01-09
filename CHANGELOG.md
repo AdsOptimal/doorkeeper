@@ -1,5 +1,113 @@
 # Changelog
 
+## 2.0.2
+
+- [#540] Include `created_at` in response.
+- [#538] Check application-level scopes in client_credentials and password flow.
+- [#534] Internationalizes doorkeeper views.
+
+## 2.0.1
+
+- [#525, #526, #527] Fix `ActiveRecord::NoDatabaseError` on gem load.
+
+## 2.0.0
+
+### Backward incompatible changes
+
+- [#448] Removes `doorkeeper_for` helper. Now we use
+  `before_action :doorkeeper_authorize!`.
+- [#469] Allow client applications to restrict the set of allowable scopes.
+  Fixes #317. `oauth_applications` relation needs a new `scopes` string column,
+  non nullable, which defaults to an empty string. To add the column run:
+
+  ```
+  rails generate doorkeeper:application_scopes
+  ```
+
+  If you’d rather do it by hand, your ActiveRecord migration should contain:
+
+  ```ruby
+  add_column :oauth_applications, :scopes, :string, null: false, default: ‘’
+  ```
+
+### Removed deprecations
+
+- Removes `test_redirect_uri` option. It is now called `native_redirect_uri`.
+- [#446] Removes `mount Doorkeeper::Engine`. Now we use `use_doorkeeper`.
+
+### Others
+
+- [#484] Performance improvement - avoid performing order_by when not required.
+- [#450] When password is invalid in Password Credentials Grant, Doorkeeper
+  returned 'invalid_resource_owner' instead of 'invalid_grant', as the spec
+  declares. Fixes #444.
+- [#452] Allows `revoked_at` to be set in the future, for future expiry.
+  Rationale: https://github.com/doorkeeper-gem/doorkeeper/pull/452#issuecomment-51431459
+- [#480] For Implicit grant flow, access tokens can now be reused. Fixes #421.
+- [#491] Reworks of @jasl's #454 and #478. ORM refactor that allows doorkeeper
+  to be extended more easily with unsupported ORMs. It also marks the boundaries
+  between shared model code and ORM specifics inside of the gem.
+- [#496] Tests with Rails 4.2.
+- [#489] Adds `force_ssl_in_redirect_uri` to force the usage of the HTTPS
+  protocol in non-native redirect uris.
+- [#516] SECURITY: Adds `protect_from_forgery` to `Doorkeeper::ApplicationController`
+- [#518] Fix random failures in mongodb.
+
+
+## 1.4.1
+
+- [#516] SECURITY: Adds `protect_from_forgery` to `Doorkeeper::ApplicationController`
+
+
+## 1.4.0
+
+- internals
+  - [#427] Adds specs expectations.
+  - [#428] Error response refactor.
+  - [#417] Moves token validation into Access Token class.
+  - [#439] Removes redundant module includes.
+  - [#443] TokensController and TokenInfoController inherit from ActionController::Metal
+- bug
+  - [#418] fixes #243, requests with insufficient scope now respond 403 instead
+    of 401. (API change)
+  - [#438] fixes #398, native redirect for implicit token grant bug.
+  - [#440] namespace fixes
+- enhancements
+  - [#432] Keeps query parameters
+
+## 1.3.1
+
+- enhancements
+  - [#405] Adds facade to more easily get the token from a request in a route
+    constraint.
+  - [#415] Extend Doorkeeper TokenResponse with an `after_successful_response`
+    callback that allows handling of `response` object.
+- internals
+  - [#409] Deprecates `test_redirect_uri` in favor of `native_redirect_uri`.
+    See discussion in: [#351].
+  - [#411] Clean rspec deprecations. General test improvements.
+  - [#412] rspec line width can go longer than 80 (hound CI config).
+- bug
+  - [#413] fixes #340, routing scope is now taken into account in redirect.
+  - [#401] and [#425] application is not required any longer for access_token.
+
+## 1.3.0
+
+- enhancements
+  - [#387] Adds reuse_access_token configuration option.
+
+## 1.2.0
+
+- enhancements
+  - [#376] Allow users to enable basic header authorization for access tokens.
+  - [#374] Token revocation implementation [RFC 7009]
+  - [#295] Only enable specific grant flows.
+- internals
+  - [#381] Locale source fix.
+  - [#380] Renames `errors_for` to `doorkeeper_errors_for`.
+  - [#390] Style adjustments in accordance with Ruby Style Guide form
+    Thoughtbot.
+
 ## 1.1.0
 
 - enhancements
@@ -47,7 +155,7 @@
   - [#204] Allow to overwrite scope in routes
 - internals
   - Returns only present keys in Token Response (may imply a backwards
-    incompatible change). https://github.com/applicake/doorkeeper/issues/220
+    incompatible change). https://github.com/doorkeeper-gem/doorkeeper/issues/220
 - bug
   - [#290] Support for Rails 4 when 'protected_attributes' gem is present.
 

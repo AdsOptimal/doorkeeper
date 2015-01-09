@@ -1,11 +1,12 @@
 Doorkeeper.configure do
   # Change the ORM that doorkeeper will use.
-  # Currently supported options are :active_record, :mongoid2, :mongoid3, :mongo_mapper
+  # Currently supported options are :active_record, :mongoid2, :mongoid3,
+  # :mongoid4, :mongo_mapper
   orm :active_record
 
   # This block will be called to check whether the resource owner is authenticated or not.
   resource_owner_authenticator do
-    raise "Please configure doorkeeper resource_owner_authenticator block located in #{__FILE__}"
+    fail "Please configure doorkeeper resource_owner_authenticator block located in #{__FILE__}"
     # Put your resource owner authentication logic here.
     # Example implementation:
     #   User.find_by_id(session[:user_id]) || redirect_to(new_user_session_url)
@@ -25,6 +26,10 @@ Doorkeeper.configure do
   # If you want to disable expiration, set this to nil.
   # access_token_expires_in 2.hours
 
+  # Reuse access token for the same resource owner within an application (disabled by default)
+  # Rationale: https://github.com/doorkeeper-gem/doorkeeper/issues/383
+  # reuse_access_token
+
   # Issue access tokens with refresh token (disabled by default)
   # use_refresh_token
 
@@ -35,7 +40,8 @@ Doorkeeper.configure do
   # enable_application_owner :confirmation => false
 
   # Define access token scopes for your provider
-  # For more information go to https://github.com/applicake/doorkeeper/wiki/Using-Scopes
+  # For more information go to
+  # https://github.com/doorkeeper-gem/doorkeeper/wiki/Using-Scopes
   # default_scopes  :public
   # optional_scopes :write, :update
 
@@ -51,12 +57,30 @@ Doorkeeper.configure do
   # Check out the wiki for more information on customization
   # access_token_methods :from_bearer_authorization, :from_access_token_param, :from_bearer_param
 
-  # Change the test redirect uri for client apps
+  # Change the native redirect uri for client apps
   # When clients register with the following redirect uri, they won't be redirected to any server and the authorization code will be displayed within the provider
   # The value can be any string. Use nil to disable this feature. When disabled, clients must provide a valid URL
   # (Similar behaviour: https://developers.google.com/accounts/docs/OAuth2InstalledApp#choosingredirecturi)
   #
-  # test_redirect_uri 'urn:ietf:wg:oauth:2.0:oob'
+  # native_redirect_uri 'urn:ietf:wg:oauth:2.0:oob'
+
+  # Forces the usage of the HTTPS protocol in non-native redirect uris (enabled
+  # by default in non-development environments). OAuth2 delegates security in
+  # communication to the HTTPS protocol so it is wise to keep this enabled.
+  #
+  # force_ssl_in_redirect_uri !Rails.env.development?
+
+  # Specify what grant flows are enabled in array of Strings. The valid
+  # strings and the flows they enable are:
+  #
+  # "authorization_code" => Authorization Code Grant Flow
+  # "implicit"           => Implicit Grant Flow
+  # "password"           => Resource Owner Password Credentials Grant Flow
+  # "client_credentials" => Client Credentials Grant Flow
+  #
+  # If not specified, Doorkeeper enables all the four grant flows.
+  #
+  # grant_flows %w(authorization_code implicit password client_credentials)
 
   # Under some circumstances you might want to have applications auto-approved,
   # so that the user skips the authorization step.
@@ -65,7 +89,7 @@ Doorkeeper.configure do
   #   client.superapp? or resource_owner.admin?
   # end
 
-  # WWW-Authenticate Realm (default "Doorkeeper").
+  # WWW-Authenticate Realm (default "Doorkeeper").
   # realm "Doorkeeper"
 
   # Allow dynamic query parameters (disabled by default)

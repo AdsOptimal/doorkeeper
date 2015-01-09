@@ -1,3 +1,2 @@
 module Doorkeeper
-  VERSION = '1.1.10'
-end
+  VERSION = '2.0.1'
